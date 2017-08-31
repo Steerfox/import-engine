@@ -1,5 +1,5 @@
 {
-  "name": "mathielen/import-engine",
+  "name": "steerfox/import-engine",
   "type": "library",
   "description": "Full-blown importer stack for importing almost any data into your application",
   "keywords": [

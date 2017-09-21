@@ -3,6 +3,7 @@
 namespace Mathielen\DataImport\Reader;
 
 use Ddeboer\DataImport\Reader\CountableReaderInterface;
+use Ddeboer\DataImport\Reader\ReaderInterface;
 
 /**
  * Reads data from a given service.
@@ -84,7 +85,12 @@ class ServiceReader implements CountableReaderInterface
     public function rewind()
     {
         if (!$this->iterableResult) {
-            $this->iterableResult = new \ArrayIterator($this->getDataFromService());
+            $data = $this->getDataFromService();
+            if ($data instanceof \Iterator) {
+                $this->iterableResult = $data;
+            } else {
+                $this->iterableResult = new \ArrayIterator($this->getDataFromService());
+            }
         }
 
         $this->iterableResult->rewind();

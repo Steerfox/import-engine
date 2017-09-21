@@ -36,6 +36,12 @@ class ServiceStorageProvider implements StorageProviderInterface
         $callable = $selection->getImpl();
 
         $arguments = array();
+
+        if (isset($callable[2])) {
+            $arguments = $callable[2];
+            unset($callable[2]);
+        }
+
         if (is_array($callable) && isset($callable['arguments'])) {
             $arguments = $callable['arguments'];
             unset($callable['arguments']);

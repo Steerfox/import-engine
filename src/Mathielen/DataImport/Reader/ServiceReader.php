@@ -86,10 +86,11 @@ class ServiceReader implements CountableReaderInterface
     {
         if (!$this->iterableResult) {
             $data = $this->getDataFromService();
+
             if ($data instanceof \Iterator) {
                 $this->iterableResult = $data;
             } else {
-                $this->iterableResult = new \ArrayIterator($this->getDataFromService());
+                $this->iterableResult = new \ArrayIterator($data);
             }
         }
 
@@ -106,6 +107,7 @@ class ServiceReader implements CountableReaderInterface
         }
 
         return count($this->iterableResult);
+
     }
 
     private function getDataFromService()

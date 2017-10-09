@@ -21,6 +21,10 @@ class XmlReader implements CountableReaderInterface
     {
         $this->filename = $file->getPathname();
 
+        $this->file = $file;
+        $stat = $file->fstat();
+        $this->size = $stat['size'];
+
         if (!is_null($xpath) && !is_string($xpath)) {
             throw new \InvalidArgumentException('xpath must be null or a string');
         }
@@ -78,14 +82,24 @@ class XmlReader implements CountableReaderInterface
     public function rewind()
     {
         if (!$this->iterableResult) {
-            $this->iterableResult = new \SimpleXMLIterator(file_get_contents($this->filename));
 
-            if ($this->xpath) {
-                $this->iterableResult = new \ArrayIterator($this->iterableResult->xpath($this->xpath));
+            $simpleXml = new \SimpleXMLIterator($this->file->fread($this->size));
+            $namespaces = $simpleXml->getNamespaces(true);
+
+            if ($simpleXml->getName() === 'rss') {
+                // TODO rss reading is not functional yet
+                $items = $simpleXml->channel->xpath('item');
+                $this->iterableResult = new \ArrayIterator($items);
+            } else {
+                $this->iterableResult = $simpleXml;
+                if ($this->xpath) {
+                    $this->iterableResult = new \ArrayIterator($this->iterableResult->xpath($this->xpath));
+                }
             }
         }
 
         $this->iterableResult->rewind();
+
     }
 
     /**

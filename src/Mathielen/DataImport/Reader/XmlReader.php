@@ -87,9 +87,28 @@ class XmlReader implements CountableReaderInterface
             $namespaces = $simpleXml->getNamespaces(true);
 
             if ($simpleXml->getName() === 'rss') {
-                // TODO rss reading is not functional yet
-                $items = $simpleXml->channel->xpath('item');
+                $items = [];
+                // loop through items
+                foreach($simpleXml->channel->xpath('item') as $item) {
+                    $result = [];
+                    $result[] = $item->children();
+                    // loop through namespaces
+                    foreach ($namespaces as $ns => $uri) {
+                        $result[] = $item->children($ns, true);
+                    }
+                    $final = [];
+                    // merge result by namespace to build final item
+                    foreach ($result as $part) {
+                        foreach ($part as $key => $value) {
+                            $final[$key] = trim((string) $value);
+                        }
+                    }
+
+                    // add final item to items list
+                    $items[] = $final;
+                }
                 $this->iterableResult = new \ArrayIterator($items);
+
             } else {
                 $this->iterableResult = $simpleXml;
                 if ($this->xpath) {

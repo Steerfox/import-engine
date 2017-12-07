@@ -20,6 +20,11 @@ class ServiceStorage implements StorageInterface
     private $objectTransformer;
     private $objectFactory;
 
+    /**
+     * @var ServiceReader
+     */
+    private $reader;
+
     public function __construct(callable $callable, $arguments = array(), $objectMapper = null)
     {
         $this->callable = $callable;
@@ -56,13 +61,15 @@ class ServiceStorage implements StorageInterface
      */
     public function reader()
     {
-        $reader = new ServiceReader(
-            $this->callable,
-            $this->arguments,
-            $this->objectTransformer
-        );
+        if (is_null($this->reader)) {
+            $this->reader = new ServiceReader(
+                $this->callable,
+                $this->arguments,
+                $this->objectTransformer
+            );
+        }
 
-        return $reader;
+        return $this->reader;
     }
 
     /*

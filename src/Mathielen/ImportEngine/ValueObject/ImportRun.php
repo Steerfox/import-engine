@@ -2,6 +2,8 @@
 
 namespace Mathielen\ImportEngine\ValueObject;
 
+use Ddeboer\DataImport\Result;
+
 class ImportRun
 {
     const STATE_REVOKED = 'revoked';
@@ -41,6 +43,11 @@ class ImportRun
 
     protected $statistics = array();
     protected $info = array();
+
+    /**
+     * @var Result
+     */
+    protected $result;
 
     /**
      * arbitrary data.
@@ -236,4 +243,19 @@ class ImportRun
             'state' => $this->getState(),
         );
     }
+
+    public function setResult(Result $result)
+    {
+        $this->result = $result;
+        return $this;
+    }
+
+    /**
+     * @return Result
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
 }

@@ -35,6 +35,7 @@ class DefaultWorkflowFactory implements WorkflowFactoryInterface
     {
         $workflow = new EventDispatchableWorkflow($import->getSourceStorage()->reader());
         $workflow->setEventDispatcher($this->eventDispatcher);
+        $workflow->setSkipItemOnFailure(true);
 
         $import->importer()->filters()->apply($workflow);
         $import->mappings()->apply($workflow, $import->importer()->transformation()->converterProvider());

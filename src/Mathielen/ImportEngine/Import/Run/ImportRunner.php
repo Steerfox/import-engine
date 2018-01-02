@@ -8,6 +8,7 @@ use Mathielen\ImportEngine\Import\Import;
 use Mathielen\ImportEngine\Import\Workflow\DefaultWorkflowFactory;
 use Mathielen\ImportEngine\Import\Workflow\WorkflowFactoryInterface;
 use Mathielen\ImportEngine\Exception\ImportRunException;
+use Mathielen\ImportEngine\ValueObject\ImportRun;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -61,11 +62,14 @@ class ImportRunner
             $this->eventDispatcher->dispatch(ImportProcessEvent::AFTER_PREPARE.'.'.$importRun->getConfiguration()->getImporterId(), $e);
         }
 
-        $workflow->process();
+        $result = $workflow->process();
 
         if ($e && $importRun->getConfiguration()) {
             $this->eventDispatcher->dispatch(ImportProcessEvent::AFTER_FINISH.'.'.$importRun->getConfiguration()->getImporterId(), $e);
         }
+
+        return $result;
+
     }
 
     /**
@@ -94,19 +98,21 @@ class ImportRunner
     }
 
     /**
-     * @return Import
+     * @return ImportRun
      */
     public function dryRun(Import $import)
     {
         $importRun = $import->getRun();
         $workflow = $this->workflowFactory->buildDryrunWorkflow($import, $importRun);
-        $this->process($workflow, $import);
+        $result = $this->process($workflow, $import);
+
+        $importRun->setResult($result);
 
         return $importRun;
     }
 
     /**
-     * @return Import
+     * @return ImportRun
      */
     public function run(Import $import)
     {
@@ -114,7 +120,9 @@ class ImportRunner
 
         $importRun = $import->getRun();
         $workflow = $this->workflowFactory->buildRunWorkflow($import, $importRun);
-        $this->process($workflow, $import);
+        $result = $this->process($workflow, $import);
+
+        $importRun->setResult($result);
 
         $this->logger->info('Import run finished.', $import->getRun()->toArray());
 
